@@ -53,6 +53,8 @@ function _onVolumeScrollTimeout () {
 
 	// When time is up, we close the menu
 	aggregateMenu.menu.close();
+
+	popupTimeout = null;
 }
 
 function _onVolumeIndicatorClick (e) {
