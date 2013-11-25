@@ -91,13 +91,13 @@ function _onVolumeIndicatorClick (actor, e) {
 		if (currentValue === 0 && _previousVolumeValue) {
 			// this is definitely a hack
 			sliderActor.setValue(_previousVolumeValue);
-			sliderActor.emit('value-changed', _previousVolumeValue);
+			sliderActor.emit('value-changed', _previousVolumeValue); // mimic slider behvaiour so volume will actually change 
 			volumeIndicator._primaryIndicator.icon_name = _previousVolumeIcon;
 		}
 		else {
 			// a dirty dirty hack
 			sliderActor.setValue(0);
-			sliderActor.emit('value-changed', 0);
+			sliderActor.emit('value-changed', 0); // like above
 			volumeIndicator._primaryIndicator.icon_name = VOLUME_MUTE_ICON;
 			_previousVolumeValue = currentValue;
 			_previousVolumeIcon = currentIcon;
