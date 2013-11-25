@@ -31,23 +31,23 @@ let popupTimeout = null;
 let availableMenus = [];
 function _onVolumeScroll(indicators, e) {
 	let menu = aggregateMenu.menu;
-	let menuItems = menu._getMenuItems();
 
-	// Only if menu is not already open
-	if (!menu.actor.visible) {
-		// We need to remove the previous timeout if the user scrolled again since
-		// it means they are not ready yet for us to hide the menu
-		_removeTimeout();
+	// Only if menu is not already open (and not due to our request)
+	if (menu.actor.visible && popupTimeout === null)
+		return;
 
-		// Set a timeout for the menu to close (we don't want it staying open forever)
-		popupTimeout = Mainloop.timeout_add_seconds(POPUP_TIMEOUT_SECS, _onVolumeScrollTimeout);
+	// We need to remove the previous timeout if the user scrolled again since
+	// it means they are not ready yet for us to hide the menu
+	if (popupTimeout !== null) _removeTimeout();
 
-		// We want to hide all menus which are not the volume menu
-		_setMenusVisibility(false);
+	// Set a timeout for the menu to close (we don't want it staying open forever)
+	popupTimeout = Mainloop.timeout_add_seconds(POPUP_TIMEOUT_SECS, _onVolumeScrollTimeout);
 
-		// Open the aggregateMenu so we can see some volume
-		aggregateMenu.menu.open();
-	}
+	// We want to hide all menus which are not the volume menu
+	_setMenusVisibility(false);
+
+	// Open the aggregateMenu so we can see some volume
+	aggregateMenu.menu.open();
 }
 
 function _onVolumeScrollTimeout () {
