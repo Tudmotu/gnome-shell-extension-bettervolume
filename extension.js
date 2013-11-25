@@ -7,6 +7,7 @@
  * 	2. Middle/scroll clicking on the indicator, output is muted.
  *
  */
+const Clutter = imports.gi.Clutter;
 const Gdk = imports.gi.Gdk;
 const GLib = imports.gi.GLib;
 const Lang = imports.lang;
@@ -24,12 +25,13 @@ const Convenience = Me.imports.convenience;
 const prettyPrint = Convenience.dbPrintObj;
 
 const POPUP_TIMEOUT_SECS = 1;
+const VOLUME_MUTE_ICON = 'audio-volume-muted-symbolic';
 let volumeIndicator, aggregateMenu;
-let _onVolumeScrollEventId, _onVolumeIndicatorClickEventId;
+let _onAggregateMenuClickEventId, _onVolumeIndicatorScrollEventId, _onVolumeIndicatorClickEventId;
 
 let popupTimeout = null;
 let availableMenus = [];
-function _onVolumeScroll(indicators, e) {
+function _onVolumeIndicatorScroll(indicators, e) {
 	let menu = aggregateMenu.menu;
 
 	// Only if menu is not already open (and not due to our request)
@@ -41,7 +43,7 @@ function _onVolumeScroll(indicators, e) {
 	if (popupTimeout !== null) _removeTimeout();
 
 	// Set a timeout for the menu to close (we don't want it staying open forever)
-	popupTimeout = Mainloop.timeout_add_seconds(POPUP_TIMEOUT_SECS, _onVolumeScrollTimeout);
+	popupTimeout = Mainloop.timeout_add_seconds(POPUP_TIMEOUT_SECS, _onVolumeIndicatorScrollTimeout);
 
 	// We want to hide all menus which are not the volume menu
 	_setMenusVisibility(false);
@@ -50,7 +52,7 @@ function _onVolumeScroll(indicators, e) {
 	aggregateMenu.menu.open();
 }
 
-function _onVolumeScrollTimeout () {
+function _onVolumeIndicatorScrollTimeout () {
 	// Re-show menus
 	_setMenusVisibility(true);
 
@@ -60,7 +62,7 @@ function _onVolumeScrollTimeout () {
 	popupTimeout = null;
 }
 
-function _onVolumeIndicatorClick (e) {
+function _onAggregateMenuClick (actor, e) {
 	// We want to see if the popup is already displayed, and if so, kill its
 	// timeout, so it won't suddenly disappear on us
 	// If it's not open, we don't won't to do anything
@@ -75,6 +77,33 @@ function _onVolumeIndicatorClick (e) {
 		// visibility, we want to reverse the effect. It's a dirty trick but I
 		// could not figure out a better way to overcome its self-toggling
 		aggregateMenu.menu.toggle();
+	}
+}
+
+let _previousVolumeValue, _previousVolumeIcon;
+function _onVolumeIndicatorClick (actor, e) {
+	// When middle-clicking on the indicator we want to toggle mute 
+	if (e.get_button() === Clutter.BUTTON_MIDDLE) {
+		let sliderActor = volumeIndicator._volumeMenu._output._slider; // hummm.. hack?
+		let currentValue = sliderActor._getCurrentValue(); // starting to look like a hack
+		let currentIcon = volumeIndicator._primaryIndicator.icon_name;
+
+		if (currentValue === 0 && _previousVolumeValue) {
+			// this is definitely a hack
+			sliderActor.setValue(_previousVolumeValue);
+			sliderActor.emit('value-changed', _previousVolumeValue);
+			volumeIndicator._primaryIndicator.icon_name = _previousVolumeIcon;
+		}
+		else {
+			// a dirty dirty hack
+			sliderActor.setValue(0);
+			sliderActor.emit('value-changed', 0);
+			volumeIndicator._primaryIndicator.icon_name = VOLUME_MUTE_ICON;
+			_previousVolumeValue = currentValue;
+			_previousVolumeIcon = currentIcon;
+		}
+
+		aggregateMenu.menu.toggle(); // again with that previous hack
 	}
 }
 
@@ -106,12 +135,14 @@ function enable() {
 
 	if (aggregateMenu.hasOwnProperty('_volume') && aggregateMenu._volume instanceof PanelMenu.SystemIndicator) {
 		volumeIndicator = aggregateMenu._volume;
-		_onVolumeScrollEventId = volumeIndicator.indicators.connect('scroll-event', _onVolumeScroll);
-		_onVolumeIndicatorClickEventId = aggregateMenu.actor.connect('button-press-event', _onVolumeIndicatorClick);
+		_onVolumeIndicatorScrollEventId = volumeIndicator.indicators.connect('scroll-event', _onVolumeIndicatorScroll);
+		_onVolumeIndicatorClickEventId = volumeIndicator.indicators.connect('button-press-event', _onVolumeIndicatorClick);
+		_onAggregateMenuClickEventId = aggregateMenu.actor.connect('button-press-event', _onAggregateMenuClick);
 	}
 }
 
 function disable() {
-	volumeIndicator.indicators.disconnect(_onVolumeScrollEventId);
-	aggregateMenu.actor.disconnect(_onVolumeIndicatorClickEventId);
+	volumeIndicator.indicators.disconnect(_onVolumeIndicatorScrollEventId);
+	volumeIndicator.indicators.disconnect(_onVolumeIndicatorClickEventId);
+	aggregateMenu.actor.disconnect(_onAggregateMenuClickEventId);
 }
