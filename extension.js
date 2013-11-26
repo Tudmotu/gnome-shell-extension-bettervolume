@@ -76,7 +76,7 @@ function _onAggregateMenuClick (actor, e) {
 
 let _previousVolumeValue, _previousVolumeIcon;
 function _onVolumeIndicatorClick (actor, e) {
-	// When middle-clicking on the indicator we want to toggle mute 
+	// When middle-clicking on the indicator we want to toggle mute
 	if (e.get_button() === Clutter.BUTTON_MIDDLE) {
 		let sliderActor = volumeIndicator._volumeMenu._output._slider; // hummm.. hack?
 		let currentValue = sliderActor._getCurrentValue(); // starting to look like a hack
@@ -85,7 +85,7 @@ function _onVolumeIndicatorClick (actor, e) {
 		if (currentValue === 0 && _previousVolumeValue) {
 			// this is definitely a hack
 			sliderActor.setValue(_previousVolumeValue);
-			sliderActor.emit('value-changed', _previousVolumeValue); // mimic slider behvaiour so volume will actually change 
+			sliderActor.emit('value-changed', _previousVolumeValue); // mimic slider behvaiour so volume will actually change
 			volumeIndicator._primaryIndicator.icon_name = _previousVolumeIcon;
 		}
 		else {
@@ -113,7 +113,7 @@ function _setMenusVisibility (visibility) {
 	for (let k in aggregateMenu) {
 		let entry = aggregateMenu[k];
 		if (entry instanceof PanelMenu.SystemIndicator) {
-			if (entry !== volumeIndicator){
+			if (entry !== volumeIndicator) {
 				entry.menu.actor.visible = visibility;
 			}
 		}
@@ -136,7 +136,14 @@ function enable() {
 }
 
 function disable() {
-	volumeIndicator.indicators.disconnect(_onVolumeIndicatorScrollEventId);
-	volumeIndicator.indicators.disconnect(_onVolumeIndicatorClickEventId);
-	aggregateMenu.actor.disconnect(_onAggregateMenuClickEventId);
+	// We need to verify we still have connections and disconnect them
+	if (_onVolumeIndicatorScrollEventId)
+		volumeIndicator.indicators.disconnect(_onVolumeIndicatorScrollEventId);
+
+	if (_onVolumeIndicatorClickEventId)
+		volumeIndicator.indicators.disconnect(_onVolumeIndicatorClickEventId);
+
+	if (_onAggregateMenuClickEventId)
+		aggregateMenu.actor.disconnect(_onAggregateMenuClickEventId);
 }
+
