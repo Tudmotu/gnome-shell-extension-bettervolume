@@ -1,5 +1,5 @@
 ============================
-Better Volume Control
+Better Volume Indicator
 ============================
 
 This simple extension implements two small features:
