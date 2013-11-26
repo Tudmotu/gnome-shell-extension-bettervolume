@@ -8,12 +8,6 @@
  *
  */
 const Clutter = imports.gi.Clutter;
-const Gdk = imports.gi.Gdk;
-const GLib = imports.gi.GLib;
-const Lang = imports.lang;
-const Shell = imports.gi.Shell;
-const St = imports.gi.St;
-const Gio = imports.gi.Gio;
 const Mainloop = imports.mainloop;
 
 const Main = imports.ui.main;
