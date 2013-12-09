@@ -47,24 +47,21 @@ function _onVolumeIndicatorScroll(indicators, e) {
 }
 
 function _onVolumeIndicatorScrollTimeout () {
-	// Re-show menus
-	_setMenusVisibility(true);
-
 	// When time is up, we close the menu
 	aggregateMenu.menu.close();
 
-	popupTimeout = null;
+    _removeTimeout();
 }
 
 function _onAggregateMenuClick (actor, e) {
+    // Make sure menus are displayed
+    _setMenusVisibility(true);
+
 	// We want to see if the popup is already displayed, and if so, kill its
 	// timeout, so it won't suddenly disappear on us
 	// If it's not open, we don't won't to do anything
 	if (popupTimeout !== null) {
 		_removeTimeout();
-
-		// Make sure menus are displayed
-		_setMenusVisibility(true);
 
 		// Make sure the menu is open
 		// This is kinda hacky - since the aggregateMenu toggles its own
