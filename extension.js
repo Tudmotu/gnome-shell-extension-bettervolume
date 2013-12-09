@@ -12,6 +12,7 @@ const Mainloop = imports.mainloop;
 
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
+const VolumeMenu = imports.ui.status.volume.VolumeMenu;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
@@ -115,6 +116,13 @@ function _setMenusVisibility (visibility) {
             }
         }
     }
+
+    // Hide inner menus inside the volume section
+    volumeIndicator.menu._getMenuItems().forEach(function (item, i) {
+        if ( !(item instanceof VolumeMenu) ) {
+            item.actor.visible = visibility;
+        }
+    });
 }
 
 function init() {
