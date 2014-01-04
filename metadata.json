@@ -1,7 +1,8 @@
 {
-	"shell-version": ["3.10"],
-	"uuid": "bettervolume@tudmotu.com",
-	"name": "Better Volume Indicator",
-	"description": "Allow better interaction with the volume indicator, via mouse scroll/middle-button",
-	"url": "https://github.com/Tudmotu/gnome-shell-extension-bettervolume"
+    "shell-version": ["3.10"],
+    "uuid": "bettervolume@tudmotu.com",
+    "name": "Better Volume Indicator",
+    "description": "Display volume level while scrolling the indicator, and allow to toggle mute using the scroll/middle button.",
+    "url": "https://github.com/Tudmotu/gnome-shell-extension-bettervolume",
+    "version": 1.1
 }
