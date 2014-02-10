@@ -21,8 +21,14 @@ const prettyPrint = Convenience.dbPrintObj;
 
 const POPUP_TIMEOUT_SECS = 1;
 const VOLUME_MUTE_ICON = 'audio-volume-muted-symbolic';
-let volumeIndicator, aggregateMenu;
-let _onAggregateMenuClickEventId, _onVolumeIndicatorScrollEventId, _onVolumeIndicatorClickEventId;
+let onlyVolumeMenuShown = false;
+let volumeIndicator;
+let aggregateMenu;
+let _onAggregateMenuClickEventId;
+let _onAggregateMenuEnterEventId;
+let _onAggregateMenuLeaveEventId;
+let _onVolumeIndicatorScrollEventId;
+let _onVolumeIndicatorClickEventId;
 
 let popupTimeout = null;
 let availableMenus = [];
@@ -38,7 +44,7 @@ function _onVolumeIndicatorScroll(indicators, e) {
     if (popupTimeout !== null) _removeTimeout();
 
     // Set a timeout for the menu to close (we don't want it staying open forever)
-    popupTimeout = Mainloop.timeout_add_seconds(POPUP_TIMEOUT_SECS, _onVolumeIndicatorScrollTimeout);
+    _setTimeout();
 
     // We want to hide all menus which are not the volume menu
     _setMenusVisibility(false);
@@ -72,6 +78,17 @@ function _onAggregateMenuClick (actor, e) {
     }
 }
 
+function _onAggregateMenuEnter () {
+    _removeTimeout();
+}
+
+function _onAggregateMenuLeave () {
+    // When mouse leaves, set a new timeout only if menu was shown due to
+    // volume-scrolling (meaning - this extension caused the menu to appear, and
+    // not, say, a click on the aggregate-menu by the user)
+    if (onlyVolumeMenuShown) _setTimeout();
+}
+
 let _previousVolumeValue, _previousVolumeIcon;
 function _onVolumeIndicatorClick (actor, e) {
     // When middle-clicking on the indicator we want to toggle mute
@@ -99,6 +116,10 @@ function _onVolumeIndicatorClick (actor, e) {
     }
 }
 
+function _setTimeout () {
+    popupTimeout = Mainloop.timeout_add_seconds(POPUP_TIMEOUT_SECS, _onVolumeIndicatorScrollTimeout);
+}
+
 function _removeTimeout () {
     Mainloop.source_remove(popupTimeout);
     popupTimeout = null;
@@ -123,6 +144,9 @@ function _setMenusVisibility (visibility) {
             item.actor.visible = visibility;
         }
     });
+
+    // Mark volume menu visibility accordingly
+    onlyVolumeMenuShown = !visibility;
 }
 
 function init() {
@@ -137,6 +161,8 @@ function enable() {
         _onVolumeIndicatorScrollEventId = volumeIndicator.indicators.connect('scroll-event', _onVolumeIndicatorScroll);
         _onVolumeIndicatorClickEventId = volumeIndicator.indicators.connect('button-press-event', _onVolumeIndicatorClick);
         _onAggregateMenuClickEventId = aggregateMenu.actor.connect('button-press-event', _onAggregateMenuClick);
+        _onAggregateMenuEnterEventId = aggregateMenu.menu.actor.connect('enter-event', _onAggregateMenuEnter);
+        _onAggregateMenuLeaveEventId = aggregateMenu.menu.actor.connect('leave-event', _onAggregateMenuLeave);
     }
 }
 
@@ -147,6 +173,12 @@ function disable() {
 
     if (_onVolumeIndicatorClickEventId)
         volumeIndicator.indicators.disconnect(_onVolumeIndicatorClickEventId);
+
+    if (_onAggregateMenuEnterEventId)
+        aggregateMenu.actor.disconnect(_onAggregateMenuEnterEventId);
+
+    if (_onAggregateMenuLeaveEventId)
+        aggregateMenu.actor.disconnect(_onAggregateMenuLeaveEventId);
 
     if (_onAggregateMenuClickEventId)
         aggregateMenu.actor.disconnect(_onAggregateMenuClickEventId);
