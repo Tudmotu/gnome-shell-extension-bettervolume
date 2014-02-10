@@ -57,6 +57,9 @@ function _onVolumeIndicatorScrollTimeout () {
     // When time is up, we close the menu
     aggregateMenu.menu.close();
 
+    // Re-show the aggegate menu entries
+    _setMenusVisibility(true);
+
     _removeTimeout();
 }
 
