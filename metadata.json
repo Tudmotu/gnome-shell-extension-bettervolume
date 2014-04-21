@@ -1,5 +1,5 @@
 {
-    "shell-version": ["3.10"],
+    "shell-version": ["3.10,3.12"],
     "uuid": "bettervolume@tudmotu.com",
     "name": "Better Volume Indicator",
     "description": "Display volume level while scrolling the indicator, and allow to toggle mute using the scroll/middle button.",
