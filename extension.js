@@ -124,7 +124,8 @@ function _setTimeout () {
 }
 
 function _removeTimeout () {
-    Mainloop.source_remove(popupTimeout);
+    if (popupTimeout !== null)
+        Mainloop.source_remove(popupTimeout);
     popupTimeout = null;
 }
 
