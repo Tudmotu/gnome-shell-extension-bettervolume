@@ -163,9 +163,9 @@ function enable() {
         volumeIndicator = aggregateMenu._volume;
         _onVolumeIndicatorScrollEventId = volumeIndicator.indicators.connect('scroll-event', _onVolumeIndicatorScroll);
         _onVolumeIndicatorClickEventId = volumeIndicator.indicators.connect('button-press-event', _onVolumeIndicatorClick);
-        _onAggregateMenuClickEventId = aggregateMenu.actor.connect('button-press-event', _onAggregateMenuClick);
         _onAggregateMenuEnterEventId = aggregateMenu.menu.actor.connect('enter-event', _onAggregateMenuEnter);
         _onAggregateMenuLeaveEventId = aggregateMenu.menu.actor.connect('leave-event', _onAggregateMenuLeave);
+        _onAggregateMenuClickEventId = aggregateMenu.actor.connect('button-press-event', _onAggregateMenuClick);
     }
 }
 
@@ -178,10 +178,10 @@ function disable() {
         volumeIndicator.indicators.disconnect(_onVolumeIndicatorClickEventId);
 
     if (_onAggregateMenuEnterEventId)
-        aggregateMenu.actor.disconnect(_onAggregateMenuEnterEventId);
+        aggregateMenu.menu.actor.disconnect(_onAggregateMenuEnterEventId);
 
     if (_onAggregateMenuLeaveEventId)
-        aggregateMenu.actor.disconnect(_onAggregateMenuLeaveEventId);
+        aggregateMenu.menu.actor.disconnect(_onAggregateMenuLeaveEventId);
 
     if (_onAggregateMenuClickEventId)
         aggregateMenu.actor.disconnect(_onAggregateMenuClickEventId);
